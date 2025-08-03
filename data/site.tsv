@@ -5,8 +5,7 @@ safeName	imran-ali-namazi
 iconName	Imran N
 footer-message	This site is where WE dream - for better work, quality time with family... and [a mission](https://support.amadeusweb.world/) to fulfil.
 siteMenuName	About
-sections	poems
-sections_no	poems, prose, essays, thoughts, more
+sections	poems, prose, with-ai, more
 local-url	http://localhost/imran/
 live-url	https://imran.wiseowls.life/
 year	2005

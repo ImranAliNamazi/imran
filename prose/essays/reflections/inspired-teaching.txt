@@ -1,0 +1,21 @@
+[info]
+source: http://edtechreview.in/news/2959-inspired-teaching-a-growing-need
+[/info]
+
+<img src="https://reelredreviews.files.wordpress.com/2015/12/mrhollandsopusimage1.jpg" />
+
+When I think of movies about inspiring teachers, Mr Holland's Opus (refer to picture above) immediately comes to mind. Parents do a lot for us, but it is under the constant care of our teachers that our thought systems develop and we gain insights into this wonderful world we live in. They help shape our character, are sometimes privy to our deepest reflections and inspire us on a voyage of self-discovery and development; continuous development. Education is so very important an aspect in the development of a child. I am very fortunate to have had wonderful teachers in my school and college life. I wrote <a href="/incubate/essays-to-a-swan/?node=sasha">a small tribute</a> to them last year:
+<i>Giving wings to our dreams
+and allaying our concerns and our fears
+
+Embracing us with your love so soft and gentle
+helping us throw off our inhibitions
+and grow into strong and capable persons</i>
+
+Teaching is not easy, but it is the most rewarding profession. With the population explosion we are seeing, more and more adults are becoming teachers, but not all of them have the privilege of growing under the guidance of senior, inspired teachers. They treat it like any other job, not knowing how much of a difference a teacher can make in the lives of students; not by the amount of book-knowledge they impart, but by them inspiring their students to stand for what they believe in and become a source of delight in the world around them.
+
+As <a href="/letters/letter-from-a-parent-to-a-teacher/">Abraham Lincoln</a> puts it in a letter to his son's teacher: "teach him to listen to all men but teach him also to filter all he hears on a screen of truth, and take only the good that comes through&hellip; Teach him to sell his brawn and brain to the highest bidders but never to put a price-tag on his heart and soul"
+
+Teaching is difficult, inspired teaching even more so, that is why it is the responsibility of Administrators and Institutions to facilitate the easy transfer of knowledge and craft from their teacher trainers and senior teachers down to all levels of teachers and even non teaching staff. Today's technology can facilitate this and it is to that end, that we, Headstream Technologies provide a platform for Professional Development in schools and colleges. Any organization has values and a culture and these become the Standards that they align themselves to. Our flagship product Transcend has a way to define these Standards and give each staff member, even the non teaching ones, related tangible goals. With Goal Setting, comes Evaluation through Observations and Professional Development by attending Courses. The Courses have plenty of detail on what aspects of the institutions vision (Standards and Components, together called the Teaching Framework) it relates to, what is the entire Course Content, what Credits a participant gets, whether Report Submissions are required for completion, a catalog of Upcoming Courses relevant to that teacher (or non teaching staff's job description), his/her Subject, Grade etc as well as a comprehensive Calendar. All these features you will find neatly presented in our edutech platform viz. Transcend.
+
+Imran is a developer for Transcend at <a href="http://headstreamtech.in">Headstream  Technologies</a>. He is immensely pleased to be part of a company that facilitates teacher growth and improvement and continues in his pursuit of technical and functional improvement of the product.

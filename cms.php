@@ -38,42 +38,63 @@ function printPiece($item, $where, $xofy = false, $relative = '') {
 
 	$heading = $item['SNo'] . '. ' . ($name = $item['Name']);
 	if ($where != 'before') $heading = getLink($heading, urlFromSlugs($item['Name']));
+
+	if ($xofy) echo '<span style="float: right">' . $xofy . '</span>';
 	h2($heading, 'm-0 p-0');
 
 	$name_websafe = urlize($name);
 	$url = pageUrl($name);
 
-	echo replaceItems('Dedicated To: %Dedication%, %Date%%Position%<br />Category: %Category%, Collection: %Collection%', [
-		'Dedication' => getLink($item['Dedication'], urlFromSlugs($item['Type'], 'for', $item['Dedication'])),
-		'Date' => $item['Date'],
-		'Position' => $xofy ? ' <span style="float: right">' . $xofy . '</span>' : '',
-		'Category' => getLink($item['Category'], urlFromSlugs($item['Type'], 'category', $item['Category'])),
-		'Collection' => getLink($item['Collection'], urlFromSlugs('collections', $item['Collection'])),
-	], '%');
+	echo '<div class="large-list with-labels"><ul class="p-0"><li>' . NEWLINE . implode('</li>' . NEWLINE . '	<li>', [
+		'<label>Dedication: </label> ' . getLink($item['Dedication'], urlFromSlugs($item['Type'], 'for', $item['Dedication'])),
+		'<label>Date: </label> '       . $item['Date'],
+		'<label>Category: </label> '   .  getLink($item['Category'], urlFromSlugs($item['Type'], 'category', $item['Category'])),
+		'<label>Collection: </label> ' . getLink($item['Collection'], urlFromSlugs('collections', $item['Collection'])),
+	]) . NEWLINE . '</li></div>' . NEWLINE;
 
-	echo BRNL . '<p class="mt-3 p-3 content-box after-content">' . $item['Description'] . '</p>';
+	echo '<p class="mt-0 p-3 content-box after-content">' . $item['Description'] . '</p>';
 
 	//TODO: if matching image
 
 	contentBox('end');
 }
 
-function did_site_render_page() {
+function site_before_render() {
+	$section = variable('section');
+	$node = variable('node');
 
+	if (	!in_array($section, ['grow', 'more', 'with-ai'])
+		&&	!in_array($section, ['2020', '2021', 'archives', 'ideas', 'ideas2']) )
+		return;
+
+	if ($section == $node) return;
+
+	DEFINE('NODEPATH', SITEPATH . '/' . variable('section') . '/' . $node);
+	variables([
+		'nodeSiteName' => humanize($node),
+		'nodeSafeName' => $node,
+		'submenu-at-node' => true,
+	]);
 }
 
 variables([
-	'link-to-section-home' => true,
+	//'link-to-section-home' => true,
 ]);
 
 function getEnrichedPieceObj($item, $sheet) {
 	$result = rowToObject($item, $sheet);
-	$result['Type'] = $type = 'poems'; //todo: high work type from a collate of 3 menu items
+	$result['Type'] = $type = _getWorkType($result);
 	$result['File'] = concatSlugs([variable('path'), $type,
 		$sheet->getValue($item, 'Collection'),
 		urlize($sheet->getValue($item, 'Name')) . '.txt',
 	]);
 	return $result;
+}
+
+function _getWorkType($item) {
+	//TODO: high work type from a collate of 3 menu items
+	$prose = ['daivic', 'essays', 'reviews', 'touched-by-grace'];
+	return in_array($item['Work'], $prose) ? 'prose' : 'poems';
 }
 
 function beforeSectionSet() {
