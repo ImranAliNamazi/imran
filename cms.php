@@ -36,7 +36,7 @@ function printPiece($item, $where, $xofy = false, $relative = '') {
 	contentBox('', 'container');
 	if ($relative) echo '<span class="right-button">' . $relative . '</span>';
 
-	$heading = $item['SNo'] . '. ' . ($name = $item['Name']);
+	$heading = '<!--noop-->' . $item['SNo'] . '. ' . ($name = $item['Name']);
 	if ($where != 'before') $heading = getLink($heading, urlFromSlugs($item['Name']));
 
 	if ($xofy) echo '<span style="float: right">' . $xofy . '</span>';
@@ -45,16 +45,18 @@ function printPiece($item, $where, $xofy = false, $relative = '') {
 	$name_websafe = urlize($name);
 	$url = pageUrl($name);
 
+	echo '<p class="mt-2 mb-3 p-3 content-box after-content">' . $item['Description'] . '</p>';
+
 	echo '<div class="large-list with-labels"><ul class="p-0"><li>' . NEWLINE . implode('</li>' . NEWLINE . '	<li>', [
-		'<label>Dedication: </label> ' . getLink($item['Dedication'], urlFromSlugs($item['Type'], 'for', $item['Dedication'])),
 		'<label>Date: </label> '       . $item['Date'],
-		'<label>Category: </label> '   .  getLink($item['Category'], urlFromSlugs($item['Type'], 'category', $item['Category'])),
+		'<label>Category: </label> '   . getLink($item['Category'], urlFromSlugs('categories', $item['Category'])),
+		'<label>Dedication: </label> ' . getLink($item['Dedication'], urlFromSlugs('for', $item['Dedication'])),
 		'<label>Collection: </label> ' . getLink($item['Collection'], urlFromSlugs('collections', $item['Collection'])),
+		'<label>Work: </label> ' . getLink($item['Work'], urlFromSlugs('works', $item['Work'])),
+		'<label>Rhymes: </label> ' . $item['RhymeScheme'],
 	]) . NEWLINE . '</li></div>' . NEWLINE;
 
-	echo '<p class="mt-0 p-3 content-box after-content">' . $item['Description'] . '</p>';
-
-	//TODO: if matching image
+	//TODO: if matching image / meta
 
 	contentBox('end');
 }
@@ -84,7 +86,7 @@ variables([
 function getEnrichedPieceObj($item, $sheet) {
 	$result = rowToObject($item, $sheet);
 	$result['Type'] = $type = _getWorkType($result);
-	$result['File'] = concatSlugs([variable('path'), $type,
+	$result['File'] = concatSlugs([variable('path'), $type . ($type == 'prose' ? '/' . urlize($result['Work']) : ''),
 		$sheet->getValue($item, 'Collection'),
 		urlize($sheet->getValue($item, 'Name')) . '.txt',
 	]);
@@ -100,17 +102,21 @@ function _getWorkType($item) {
 function beforeSectionSet() {
 	$node = variable('node');
 	$piece = in_array($node, ['all', 'poems', 'prose', 'essays']);
-	$alias = in_array($node, ['works', 'collections']);
+	$alias = in_array($node, ['works', 'collections', 'categories', 'for']);
 
 	$byWork = getSheet('sitemap', 'Work');
 
 	if (!$piece && !$alias) {
 		$sheet = getSheet('sitemap', 'Name');
-		$name = humanize($node);
-		if (!isset($sheet->group[$name]))
+
+		$bySlug = [];
+		foreach ($sheet->group as $name => $row)
+			$bySlug[urlize($name)] = $row[0]; 
+
+		if (!isset($bySlug[$node]))
 		return false;
 
-		$item = $sheet->group[$name][0];
+		$item = $bySlug[$node];
 
 		$ofSameWork = $byWork->group[$sheet->getValue($item, 'Work')];
 		$indicesByName = [];
@@ -133,12 +139,19 @@ function beforeSectionSet() {
 		return true;
 	}
 
-	if ($node == 'collections')
+	if ($node == 'categories')
+		$sheet = getSheet('sitemap', 'Category');
+	else if ($node == 'collections')
 		$sheet = getSheet('sitemap', 'Collection');
+	else if ($node == 'for')
+		$sheet = getSheet('sitemap', 'Dedication');
 	else if ($node == 'works')
 		$sheet = $byWork;
 
 	$on = getPageParameterAt(1);
+	if (in_array($node, ['categories', 'for']))
+		$on = humanize($on);
+
 	if (!isset($sheet->group[$on]))
 		return false;
 
