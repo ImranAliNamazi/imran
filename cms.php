@@ -1,10 +1,19 @@
 <?php
 //retain .txt and use .md for the deep dives
 
+function did_site_render_page() {
+	if (variable('hasPiece')) {
+		renderAny(variable('file'));
+		contentBox('end');
+	}
+
+	return variable('hasPiece') || variable('hasPieces');
+}
+
 function before_file() {
 	if (variable('hasPiece')) {
 		printPiece(variable('currentPiece'), 'before');
-	} if (variable('hasPieces')) {
+	} else if (variable('hasPieces')) {
 		$count = count(variable('currentPieces'));
 		foreach (variable('currentPieces') as $ix => $item)
 			printPiece($item, 'during', $ix + 1 . '/' . $count);
@@ -49,16 +58,32 @@ function printPiece($item, $where, $xofy = false, $relative = '') {
 
 	echo '<div class="large-list with-labels"><ul class="p-0"><li>' . NEWLINE . implode('</li>' . NEWLINE . '	<li>', [
 		'<label>Date: </label> '       . $item['Date'],
-		'<label>Category: </label> '   . getLink($item['Category'], urlFromSlugs('categories', $item['Category'])),
+		'<label>Category: </label> '   . getLink(_getTaxonomyText($item['Category'], 'category'), urlFromSlugs('categories', $item['Category'])),
 		'<label>Dedication: </label> ' . getLink($item['Dedication'], urlFromSlugs('for', $item['Dedication'])),
-		'<label>Collection: </label> ' . getLink($item['Collection'], urlFromSlugs('collections', $item['Collection'])),
-		'<label>Work: </label> ' . getLink($item['Work'], urlFromSlugs('works', $item['Work'])),
+		'<label>Collection: </label> ' . getLink(_getTaxonomyText($item['Collection'], 'collection'), urlFromSlugs('collections', $item['Collection'])),
+		'<label>Work: </label> ' . getLink(_getTaxonomyText($item['Work'], 'work'), urlFromSlugs('works', $item['Work'])),
 		'<label>Rhymes: </label> ' . $item['RhymeScheme'],
 	]) . NEWLINE . '</li></div>' . NEWLINE;
 
 	//TODO: if matching image / meta
 
-	contentBox('end');
+	if ($where != 'before')
+		contentBox('end');
+}
+
+function _getTaxonomyText($val, $type) {
+	$sheet = getSheet('taxonomy', 'type');
+	$groupKey = 'types_' . $type;
+	if (!($group = variable($groupKey))) {
+		$group = arrayGroupBy($sheet->group[$type], $sheet->columns['slug'], true);
+		variable($groupKey, $group);
+	}
+
+	$key = urlize($val);
+	if (!isset($group[$key])) return $val;
+
+	$item = $group[$key][0];
+	return $sheet->getValue($item, 'text');
 }
 
 function site_before_render() {
@@ -101,22 +126,18 @@ function _getWorkType($item) {
 
 function beforeSectionSet() {
 	$node = variable('node');
-	$piece = in_array($node, ['all', 'poems', 'prose', 'essays']);
+	$piece = in_array($node, ['all', 'poems', 'prose']);
 	$alias = in_array($node, ['works', 'collections', 'categories', 'for']);
 
 	$byWork = getSheet('sitemap', 'Work');
 
 	if (!$piece && !$alias) {
-		$sheet = getSheet('sitemap', 'Name');
+		$sheet = getSheet('sitemap', 'Name', true);
 
-		$bySlug = [];
-		foreach ($sheet->group as $name => $row)
-			$bySlug[urlize($name)] = $row[0]; 
+		if (!isset($sheet->group[$node]))
+			return false;
 
-		if (!isset($bySlug[$node]))
-		return false;
-
-		$item = $bySlug[$node];
+		$item = $sheet->group[$node][0];
 
 		$ofSameWork = $byWork->group[$sheet->getValue($item, 'Work')];
 		$indicesByName = [];
@@ -139,26 +160,29 @@ function beforeSectionSet() {
 		return true;
 	}
 
-	if ($node == 'categories')
-		$sheet = getSheet('sitemap', 'Category');
+	if ($node == 'works')
+		$sheet = $byWork;
 	else if ($node == 'collections')
 		$sheet = getSheet('sitemap', 'Collection');
+	else if ($node == 'categories')
+		$sheet = getSheet('sitemap', 'Category', true);
 	else if ($node == 'for')
-		$sheet = getSheet('sitemap', 'Dedication');
-	else if ($node == 'works')
-		$sheet = $byWork;
+		$sheet = getSheet('sitemap', 'Dedication', true);
+	else if ($piece)
+		$sheet = getSheet('sitemap', false);
 
 	$on = getPageParameterAt(1);
-	if (in_array($node, ['categories', 'for']))
-		$on = humanize($on);
 
-	if (!isset($sheet->group[$on]))
+	if ($alias && !isset($sheet->group[$on]))
 		return false;
 
-	$items = $sheet->group[$on];
+	$items = $piece ? $sheet->rows : $sheet->group[$on];
 	$pieces = [];
-	foreach ($items as $item)
-		$pieces[] = getEnrichedPieceObj($item, $sheet);
+	foreach ($items as $item) {
+		$obj = getEnrichedPieceObj($item, $sheet);
+		if ($piece && $node != 'all' && $node != $obj['Type']) continue;
+		$pieces[] = $obj;
+	}
 
 	variables([
 		'hasPieces' => true,
